@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 import { Navbar } from './app/Navbar'
 import { PostsList } from './features/PostList'
+import { AddPostForm } from './features/addPostFeat'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <div className="App">
         <Switch>
           <Route exact path="/" render={() => <PostsList />} />
+          <Route exact path="/add-form" render={() => <AddPostForm />} />
           <Redirect to="/" />
         </Switch>
       </div>
