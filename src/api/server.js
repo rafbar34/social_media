@@ -240,7 +240,7 @@ const sendRandomNotifications = (socket, since) => {
 
   const notifications = generateRandomNotifications(since, numNotifications, db)
 
-  sendMessage(socket, { type: 'notifications', payload: notifications })
+  // sendMessage(socket, { type: 'notifications', payload: notifications })
 }
 
 export const forceGenerateNotifications = (since) => {
