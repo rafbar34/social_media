@@ -2,13 +2,13 @@ import { nanoid } from '@reduxjs/toolkit'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
-import { editPost } from './postsSlice'
+import { editPost, selectById } from './postsSlice'
 
 export const EditPostForm = () => {
   const { postId } = useParams()
 const history = useHistory()
   const post = useSelector((state) =>
-    state.posts.find((post) => post.id === postId)
+    selectById(state,postId)
   )
 
   const [title, setTitle] = useState(post.title)
