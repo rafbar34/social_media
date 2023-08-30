@@ -1,35 +1,61 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { nanoid } from '@reduxjs/toolkit'
-import { addPosts } from './postsSlice'
+import { addNewPost } from './postsSlice'
 import { useEffect } from 'react'
-import {useHistory} from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+import { fetchUsers } from './users/usersSlice'
+
 export const AddPostForm = () => {
   const [title, setTitle] = useState('')
   const history = useHistory()
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
+  const [status, setStatus] = useState('idle')
+  const checkStatus = useSelector((state) => state.status)
   const posts = useSelector((state) => state.posts)
   const users = useSelector((state) => state.users)
 
   const dispatch = useDispatch()
+
   const onTitleChanged = (e) => setTitle(e.target.value)
   const onContentChanged = (e) => setContent(e.target.value)
   const onAuthorChanged = (e) => setUserId(e.target.value)
-
-  const AddPostHandle = (e) => {
-    e.preventDefault()
-    console.log(nanoid())
-    dispatch(addPosts(title, content, userId))
-    history.push('/')
-  }
-
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId)
+  useEffect(() => {
+    dispatch(fetchUsers())
+  }, [dispatch])
+  const canSave = [title, content, userId].every(Boolean) && status === 'idle'
 
   const userOptions = users.map((user) => {
-    return <option key={user.id}>{user.name}</option>
+    return <option value={user.id} key={user.id}>{user.name}</option>
   })
-
+  console.log(userId)
+  const AddPostHandle = async (e) => {
+    e.preventDefault()
+    if (canSave) {
+      try {
+        await dispatch(
+          addNewPost({
+            title,
+            content,
+            user: userId,
+            date: new Date().toISOString(),
+            reactions: {
+              thumbsUp: 0,
+              happy: 0,
+              thumbsdown: 0,
+            },
+          })
+        ).unwrap()
+        setStatus('pending')
+      } catch (err) {
+        console.log(err)
+      } finally {
+        setStatus('idle')
+        history.push('/')
+      }
+    }
+  }
   return (
     <section>
       <h2>Add A New Post</h2>
@@ -54,7 +80,9 @@ export const AddPostForm = () => {
           <option value={''}></option>
           {userOptions}
         </select>
-        <button disabled={!canSave} type="submit">Save post</button>
+        <button disabled={!canSave} type="submit">
+          Save post
+        </button>
       </form>
     </section>
   )

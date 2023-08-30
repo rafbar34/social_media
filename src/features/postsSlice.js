@@ -7,6 +7,15 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return response.data
 })
 
+export const addNewPost = createAsyncThunk(
+  'posts/addNewPost',
+  async (initialPost) => {
+    console.log(initialPost)
+    const response = await client.post('/fakeApi/posts', initialPost)
+    return response.data
+  }
+)
+
 const postsSlice = createSlice({
   initialState: {
     posts: [],
@@ -33,12 +42,12 @@ const postsSlice = createSlice({
             title,
             content,
             date: new Date().toISOString(),
-            user: userId,
             reactions: {
               thumbsUp: 0,
               happy: 0,
               thumbsdown: 0,
             },
+            user: userId,
           },
         }
       },
@@ -56,13 +65,16 @@ const postsSlice = createSlice({
     builder.addCase(fetchPosts.pending, (state, action) => {
       state.status = 'loading'
     })
-    builder.addCase(fetchPosts.fulfilled, (state, action) => {
+    .addCase(fetchPosts.fulfilled, (state, action) => {
       state.status = 'succeeded'
       state.posts = state.posts.concat(action.payload)
     })
-    builder.addCase(fetchPosts.rejected, (state, action) => {
+    .addCase(fetchPosts.rejected, (state, action) => {
       state.status = 'error'
       state.error = action.error.message
+    })
+    .addCase(addNewPost.fulfilled,(state, action)=>{
+      state.posts.push(action.payload)
     })
   },
 })
