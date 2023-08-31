@@ -1,4 +1,10 @@
-import { createAsyncThunk, createSlice, nanoid } from '@reduxjs/toolkit'
+import {
+  createAsyncThunk,
+  createEntityAdapter,
+  createSelector,
+  createSlice,
+  nanoid,
+} from '@reduxjs/toolkit'
 import { client } from '../api/client'
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
@@ -7,10 +13,13 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return response.data
 })
 
+const postsAdapter = createEntityAdapter({
+  sortComparer: (a, b) => b.date.localCompate(a.date),
+})
+
 export const addNewPost = createAsyncThunk(
   'posts/addNewPost',
   async (initialPost) => {
-    console.log(initialPost)
     const response = await client.post('/fakeApi/posts', initialPost)
     return response.data
   }
@@ -62,20 +71,21 @@ const postsSlice = createSlice({
     },
   },
   extraReducers(builder) {
-    builder.addCase(fetchPosts.pending, (state, action) => {
-      state.status = 'loading'
-    })
-    .addCase(fetchPosts.fulfilled, (state, action) => {
-      state.status = 'succeeded'
-      state.posts = state.posts.concat(action.payload)
-    })
-    .addCase(fetchPosts.rejected, (state, action) => {
-      state.status = 'error'
-      state.error = action.error.message
-    })
-    .addCase(addNewPost.fulfilled,(state, action)=>{
-      state.posts.push(action.payload)
-    })
+    builder
+      .addCase(fetchPosts.pending, (state, action) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.posts = state.posts.concat(action.payload)
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = 'error'
+        state.error = action.error.message
+      })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        state.posts.push(action.payload)
+      })
   },
 })
 export const { addPosts, editPost, reactionAdded } = postsSlice.actions
@@ -85,3 +95,8 @@ export const selectById = (state, postId) =>
   state.posts.posts.find((post) => post.id === postId)
 
 export default postsSlice.reducer
+
+export const selectPostsByUser = createSelector(
+  [selectAllPosts, (state, userId) => userId],
+  (posts, userId) => posts.filter((post) => post.user === userId)
+)

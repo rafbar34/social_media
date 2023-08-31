@@ -6,8 +6,13 @@ import { TimeAgo } from './users/TimeAgo'
 import { ReactionButtons } from './ReactionsButtons'
 import { useEffect } from 'react'
 import { Spinner } from '../components/Spinner'
+import { useMemo } from 'react'
+
 export const PostsList = () => {
   const posts = useSelector(selectAllPosts)
+  const memoPosts = useMemo(() => {
+    return posts
+  }, [posts])
   const dispatch = useDispatch()
   const postStatus = useSelector((state) => state.posts.status)
   const error = useSelector((state) => state.posts.error)
@@ -25,7 +30,7 @@ export const PostsList = () => {
   if (postStatus === 'failed') {
     return <span>error</span>
   }
-  const orderedPosts = posts.slice().sort((a, b) => {
+  const orderedPosts = memoPosts.slice().sort((a, b) => {
     b.date.localeCompare(a.date)
   })
   const redneredPosts = orderedPosts.map((post) => {
