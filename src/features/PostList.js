@@ -7,30 +7,38 @@ import { ReactionButtons } from './ReactionsButtons'
 import { useEffect } from 'react'
 import { Spinner } from '../components/Spinner'
 import { useMemo } from 'react'
+import { useGetPostsQuery } from '../api/apiSlice'
 
 export const PostsList = () => {
-  const posts = useSelector(selectAllPosts)
-  const memoPosts = useMemo(() => {
-    return posts
-  }, [posts])
-  const dispatch = useDispatch()
+  // const memoPosts = useMemo(() => {
+  //   return posts
+  // }, [posts])
+  const {
+    data: posts,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetPostsQuery()
+  // const posts = useSelector(selectAllPosts)
+  // const dispatch = useDispatch()
   const postStatus = useSelector((state) => state.posts.status)
-  const error = useSelector((state) => state.posts.error)
+  // const error = useSelector((state) => state.posts.error)
 
-  useEffect(() => {
-    if (postStatus === 'idle') {
-      dispatch(fetchPosts())
-    } else {
-      return
-    }
-  }, [postStatus, dispatch])
-  if (postStatus === 'loading') {
+  // useEffect(() => {
+  //   if (postStatus === 'idle') {
+  //     dispatch(fetchPosts())
+  //   } else {
+  //     return
+  //   }
+  // }, [postStatus, dispatch])
+  if (isLoading) {
     return <Spinner text="loading" />
   }
-  if (postStatus === 'failed') {
+  if (isError) {
     return <span>error</span>
   }
-  const orderedPosts = memoPosts.slice().sort((a, b) => {
+  const orderedPosts = posts.slice().sort((a, b) => {
     b.date.localeCompare(a.date)
   })
   const redneredPosts = orderedPosts.map((post) => {
