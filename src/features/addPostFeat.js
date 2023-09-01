@@ -5,6 +5,7 @@ import { addNewPost } from './postsSlice'
 import { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { fetchUsers } from './users/usersSlice'
+import { useAddNewPostMutation } from '../api/apiSlice'
 
 export const AddPostForm = () => {
   const [title, setTitle] = useState('')
@@ -17,41 +18,40 @@ export const AddPostForm = () => {
   const users = useSelector((state) => state.users)
 
   const dispatch = useDispatch()
-
+  const [addNewPost, { isLoading }] = useAddNewPostMutation()
   const onTitleChanged = (e) => setTitle(e.target.value)
   const onContentChanged = (e) => setContent(e.target.value)
   const onAuthorChanged = (e) => setUserId(e.target.value)
   useEffect(() => {
     dispatch(fetchUsers())
   }, [dispatch])
-  const canSave = [title, content, userId].every(Boolean) && status === 'idle'
+  const canSave = [title, content, userId].every(Boolean) && !isLoading
 
   const userOptions = users.map((user) => {
-    return <option value={user.id} key={user.id}>{user.name}</option>
+    return (
+      <option value={user.id} key={user.id}>
+        {user.name}
+      </option>
+    )
   })
-  console.log(userId)
   const AddPostHandle = async (e) => {
     e.preventDefault()
     if (canSave) {
       try {
-        await dispatch(
-          addNewPost({
-            title,
-            content,
-            user: userId,
-            date: new Date().toISOString(),
-            reactions: {
-              thumbsUp: 0,
-              happy: 0,
-              thumbsdown: 0,
-            },
-          })
-        ).unwrap()
-        setStatus('pending')
+        addNewPost({
+          title,
+          content,
+          user: userId,
+          date: new Date().toISOString(),
+          reactions: {
+            thumbsUp: 0,
+            happy: 0,
+            thumbsdown: 0,
+          },
+        }).unwrap()
       } catch (err) {
         console.log(err)
       } finally {
-        setStatus('idle')
         history.push('/')
       }
     }

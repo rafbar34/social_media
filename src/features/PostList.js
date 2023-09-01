@@ -4,9 +4,7 @@ import { Link } from 'react-router-dom'
 import { PostAuthor } from './postAuthor'
 import { TimeAgo } from './users/TimeAgo'
 import { ReactionButtons } from './ReactionsButtons'
-import { useEffect } from 'react'
 import { Spinner } from '../components/Spinner'
-import { useMemo } from 'react'
 import { useGetPostsQuery } from '../api/apiSlice'
 
 export const PostsList = () => {
@@ -19,6 +17,7 @@ export const PostsList = () => {
     isSuccess,
     isError,
     error,
+    refetch
   } = useGetPostsQuery()
   // const posts = useSelector(selectAllPosts)
   // const dispatch = useDispatch()
@@ -58,6 +57,7 @@ export const PostsList = () => {
   return (
     <section className="posts-list">
       <h2>Posts</h2>
+      <button onClick={refetch}>refetch posts</button>
       {redneredPosts}
     </section>
   )

@@ -3,31 +3,30 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
 import { editPost, selectById } from './postsSlice'
+import { useEditPostMutation, useGetPostQuery } from '../api/apiSlice'
+import { Spinner } from '../components/Spinner'
 
 export const EditPostForm = () => {
   const { postId } = useParams()
-const history = useHistory()
-  const post = useSelector((state) =>
-    selectById(state,postId)
-  )
-
+  const history = useHistory()
+  const { data: post } = useGetPostQuery(postId)
+  const [updatePost, { isLoading }] = useEditPostMutation()
   const [title, setTitle] = useState(post.title)
   const [content, setContent] = useState(post.desc)
-  const dispatch = useDispatch()
   const onTitleChanged = (e) => setTitle(e.target.value)
   const onContentChanged = (e) => setContent(e.target.value)
 
-  const EditPostHandle = (e) => {
+  const EditPostHandle = async (e) => {
     e.preventDefault()
-    console.log(nanoid())
-    dispatch(
-      editPost({
+    if (title && content) {
+      await updatePost({
         id: postId,
         title: title,
         content: content,
       })
-    )
-    history.push(`/${postId}`)
+
+      history.push(`/${postId}`)
+    }
   }
 
   return (
@@ -49,10 +48,8 @@ const history = useHistory()
           value={content}
           onChange={onContentChanged}
         />
-        <button type="submit">Save post</button>
+        {!isLoading ? <button type="submit">Save post</button> : <Spinner />}
       </form>
     </section>
   )
 }
-
-
