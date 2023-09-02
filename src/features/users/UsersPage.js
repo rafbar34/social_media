@@ -11,7 +11,7 @@ export const UserPage = ({ match }) => {
   const user = useSelector((state) => selectUsersById(state, userId))
 
   const postsForUser = useSelector((state) => {
-    selectPostsByUser(state,userId)
+    selectPostsByUser(state, userId)
   })
   const postTitles = postsForUser.map((post) => {
     return (

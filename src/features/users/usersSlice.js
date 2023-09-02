@@ -37,5 +37,8 @@ export const selectAllUsers = createSelector(
 export const selectUsersById = createSelector(
   selectAllUsers,
   (state, userId) => userId,
-  (users, userId) => users.find((user) =>{ return user.id === userId})
+  (users, userId) =>
+    users.find((user) => {
+      return user.id === userId
+    })
 )

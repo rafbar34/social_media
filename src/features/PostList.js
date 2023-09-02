@@ -17,7 +17,7 @@ export const PostsList = () => {
     isSuccess,
     isError,
     error,
-    refetch
+    refetch,
   } = useGetPostsQuery()
   // const posts = useSelector(selectAllPosts)
   // const dispatch = useDispatch()
